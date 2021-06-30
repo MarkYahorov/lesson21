@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    
+    <style name="Main_screen_edit_text">
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+    
+    <style name="Main_screen_edit_text.main_screen_login_edit_text">
+        <item name="android:layout_marginStart">30dp</item>
+        <item name="android:layout_marginEnd">30dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:inputType">textEmailAddress</item>
+    </style>
+
+    <style name="Main_screen_edit_text.main_screen_password_edit_text">
+        <item name="android:layout_marginTop">20dp</item>
+        <item name="android:inputType">textPassword</item>
+    </style>
+
+    <style name="main_screen_login_btn">
+        <item name="android:layout_marginStart">50dp</item>
+        <item name="android:layout_marginEnd">30dp</item>
+        <item name="android:layout_marginBottom">20dp</item>
+        <item name="android:textSize">20sp</item>
+    </style>
+</resources>
