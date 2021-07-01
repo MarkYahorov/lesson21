@@ -46,6 +46,7 @@
         android:layout_height="wrap_content"
         android:textColor="@color/red"
         android:visibility="gone"
+        android:text="asdfasdfasdfsadf"
         android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/login_edit_text"
         app:layout_constraintEnd_toEndOf="@+id/login_edit_text"
