@@ -8,9 +8,9 @@
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/login_edit_text"
+        style="@style/Main_screen_edit_text.main_screen_login_edit_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        style="@style/Main_screen_edit_text.main_screen_login_edit_text"
         android:hint="@string/login_text"
         app:layout_constraintBottom_toTopOf="@+id/password_edit_text"
         app:layout_constraintEnd_toEndOf="parent"
@@ -20,10 +20,10 @@
 
     <androidx.appcompat.widget.AppCompatEditText
         android:id="@+id/password_edit_text"
+        style="@style/Main_screen_edit_text.main_screen_password_edit_text"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
         android:hint="@string/password_text"
-        style="@style/Main_screen_edit_text.main_screen_password_edit_text"
         app:layout_constraintBottom_toTopOf="@+id/login_btn"
         app:layout_constraintEnd_toEndOf="@+id/login_edit_text"
         app:layout_constraintStart_toStartOf="@+id/login_edit_text"
@@ -31,9 +31,10 @@
 
     <androidx.appcompat.widget.AppCompatButton
         android:id="@+id/login_btn"
+        style="@style/main_screen_login_btn"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        style="@style/main_screen_login_btn"
+        android:enabled="false"
         android:text="@string/login_btn_text"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="@+id/password_edit_text"
@@ -44,10 +45,10 @@
         android:id="@+id/error_text_view"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginBottom="16dp"
+        android:text="asdfasdfasdfsadf"
         android:textColor="@color/red"
         android:visibility="gone"
-        android:text="asdfasdfasdfsadf"
-        android:layout_marginBottom="16dp"
         app:layout_constraintBottom_toTopOf="@+id/login_edit_text"
         app:layout_constraintEnd_toEndOf="@+id/login_edit_text"
         app:layout_constraintStart_toStartOf="@+id/login_edit_text" />

@@ -6,44 +6,30 @@ import com.example.lesson21.models.LoginRequest
 import com.example.lesson21.models.LoginResponse
 import com.example.lesson21.models.ProfileRequest
 import com.example.lesson21.models.ProfileResponse
-import com.google.gson.Gson
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody.Companion.toRequestBody
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
-class GetTokenThread(
-    private val okHttpClient: OkHttpClient,
-    private val gson: Gson
-) {
-    companion object {
-        private const val LOGIN = "login"
-        private const val PROFILE = "profile"
-    }
+class GetTokenThread() {
 
     fun getToken(loginRequest: LoginRequest): Task<LoginResponse> {
         return Task.callInBackground {
-            executeRequest(loginRequest, LOGIN, LoginResponse::class.java)
+            val execute = executeRequest(SenlaService::class.java)
+            execute.getToken(loginRequest).execute().body()
         }
     }
 
     fun getUserData(profileRequest: ProfileRequest): Task<ProfileResponse> {
         return Task.callInBackground {
-            executeRequest(profileRequest, PROFILE, ProfileResponse::class.java)
+            executeRequest(SenlaService::class.java).getUserData(profileRequest).execute().body()
         }
     }
 
-    private fun <T> executeRequest(request: Any, method: String, clazz: Class<T>): T {
-        val requestBody = gson.toJson(request).toRequestBody()
-        val requestProfile = Request.Builder()
-            .url(URL + method)
-            .post(requestBody)
+    private fun <T> executeRequest(clazz: Class<T>): T {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(URL)
+            .addConverterFactory(GsonConverterFactory.create())
             .build()
-        okHttpClient.newCall(requestProfile).execute().use {
-            it.body.let { body ->
-                val jsonObj = body?.string() ?: error("Empty response")
-                return gson.fromJson(jsonObj, clazz)
-            }
-        }
+        return retrofit.create(clazz)
     }
 }

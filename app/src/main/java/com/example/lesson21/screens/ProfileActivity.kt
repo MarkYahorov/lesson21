@@ -7,12 +7,13 @@ import android.os.Bundle
 import android.text.method.ScrollingMovementMethod
 import android.widget.Button
 import android.widget.TextView
+import androidx.appcompat.app.AlertDialog
 import androidx.swiperefreshlayout.widget.SwipeRefreshLayout
 import bolts.Task
 import com.example.lesson21.Constants.BIRTH_DATE
 import com.example.lesson21.Constants.EMAIL
 import com.example.lesson21.Constants.FIRST_NAME
-import com.example.lesson21.Constants.KEY_FOR_GET_OR_SET_FILES_FROM_SHARED_PREFERENCES
+import com.example.lesson21.Constants.SAVE_IN_SHARED_PREF
 import com.example.lesson21.Constants.HAS_A_TOKEN
 import com.example.lesson21.Constants.LAST_NAME
 import com.example.lesson21.Constants.NOTE
@@ -21,8 +22,6 @@ import com.example.lesson21.Constants.isNotInProfileActivity
 import com.example.lesson21.GetTokenThread
 import com.example.lesson21.R
 import com.example.lesson21.models.ProfileRequest
-import com.google.gson.Gson
-import okhttp3.OkHttpClient
 import java.text.SimpleDateFormat
 import java.util.*
 
@@ -37,10 +36,8 @@ class ProfileActivity : AppCompatActivity() {
     private lateinit var swipeLayout: SwipeRefreshLayout
     private lateinit var progress: ProgressDialog
 
-    private val okHttpClient = OkHttpClient()
-    private val gson = Gson()
-    private val getTokenThread = GetTokenThread(okHttpClient, gson)
-    private val formatter = SimpleDateFormat("dd.MM.yyyy", Locale.getDefault())
+    private val getTokenThread = GetTokenThread()
+    private val formatter = SimpleDateFormat("dd.MM.yyyy hh:mm:ss", Locale.getDefault())
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -75,7 +72,7 @@ class ProfileActivity : AppCompatActivity() {
         logoutBtn.setOnClickListener {
             setInShared(true)
             getSharedPreferences(
-                KEY_FOR_GET_OR_SET_FILES_FROM_SHARED_PREFERENCES,
+                SAVE_IN_SHARED_PREF,
                 Context.MODE_PRIVATE
             )
                 .edit()
@@ -87,10 +84,8 @@ class ProfileActivity : AppCompatActivity() {
 
     private fun createGson(): ProfileRequest {
         return ProfileRequest(
-            getSharedPreferences(
-                KEY_FOR_GET_OR_SET_FILES_FROM_SHARED_PREFERENCES,
-                Context.MODE_PRIVATE
-            ).getString(TOKEN, "")
+            getSharedPreferences(SAVE_IN_SHARED_PREF, Context.MODE_PRIVATE)
+                .getString(TOKEN, "")
         )
     }
 
@@ -101,25 +96,33 @@ class ProfileActivity : AppCompatActivity() {
     }
 
     private fun getUserData() {
-        currentEmail.text = getSharedPreferences(
-            KEY_FOR_GET_OR_SET_FILES_FROM_SHARED_PREFERENCES,
-            Context.MODE_PRIVATE
-        ).getString(EMAIL, "")
+        currentEmail.text = getSharedPreferences(SAVE_IN_SHARED_PREF, Context.MODE_PRIVATE)
+            .getString(EMAIL, "")
         getTokenThread.getUserData(createGson())
-            .onSuccess({
-                currentFirstName.text = it.result.firstName
-                currentSecondName.text = it.result.lastName
-                currentBirthday.text = formatDate(formatter, it.result.birthDate!!.toLong())
-                currentNote.text = it.result.notes
-                swipeLayout.isRefreshing = false
-                progress.dismiss()
+            .continueWith({
+                when {
+                    it.error != null -> {
+                        createAlertDialog()
+                    }
+                    it.result.status == "error" -> {
+                        createAlertDialog()
+                    }
+                    else -> {
+                        currentFirstName.text = it.result.firstName
+                        currentSecondName.text = it.result.lastName
+                        currentBirthday.text = formatDate(formatter, it.result.birthDate!!.toLong())
+                        currentNote.text = it.result.notes
+                        swipeLayout.isRefreshing = false
+                        progress.dismiss()
+                    }
+                }
             }, Task.UI_THREAD_EXECUTOR)
     }
 
 
     private fun setInShared(outOrIn: Boolean) {
         isNotInProfileActivity = outOrIn
-        getSharedPreferences(KEY_FOR_GET_OR_SET_FILES_FROM_SHARED_PREFERENCES, Context.MODE_PRIVATE)
+        getSharedPreferences(SAVE_IN_SHARED_PREF, Context.MODE_PRIVATE)
             .edit()
             .putBoolean(HAS_A_TOKEN, isNotInProfileActivity)
             .apply()
@@ -151,6 +154,18 @@ class ProfileActivity : AppCompatActivity() {
         progress = ProgressDialog(this@ProfileActivity)
         progress.setCanceledOnTouchOutside(false)
         progress.show()
+    }
+
+    private fun createAlertDialog() {
+        val builder = AlertDialog.Builder(this)
+        builder.setPositiveButton("Ok, thanks") { _, _ ->
+            setInShared(true)
+            finish()
+        }
+        builder.setTitle("ERROR")
+        builder.setIcon(R.drawable.alert)
+        builder.setMessage("You data or server is not working")
+        builder.show()
     }
 
     override fun onStop() {
