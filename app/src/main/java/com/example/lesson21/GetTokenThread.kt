@@ -1,59 +1,35 @@
 package com.example.lesson21
 
 import bolts.Task
+import com.example.lesson21.Constants.URL
 import com.example.lesson21.models.LoginRequest
 import com.example.lesson21.models.LoginResponse
 import com.example.lesson21.models.ProfileRequest
 import com.example.lesson21.models.ProfileResponse
-import com.google.gson.Gson
-import okhttp3.OkHttpClient
-import okhttp3.Request
-import okhttp3.RequestBody
-import okhttp3.RequestBody.Companion.toRequestBody
-import java.lang.RuntimeException
+import retrofit2.Retrofit
+import retrofit2.converter.gson.GsonConverterFactory
 
 
-class GetTokenThread(
-    val okHttpClient: OkHttpClient,
-    val request: LoginRequest
-    ){
+class GetTokenThread() {
 
-    private fun goSomething(): Task<ProfileResponse> {
+    fun getToken(loginRequest: LoginRequest): Task<LoginResponse> {
         return Task.callInBackground {
-            val gson = Gson()
-            val body = gson.toJson(request, LoginRequest::class.java).toString().toRequestBody()
-                val request = Request.Builder()
-                    //.url(ProfileActivity.URI + LOGIN)
-                    .post(body)
-                    .build()
-                okHttpClient.newCall(request).execute().use {
-                    it.body.let { body ->
-                        val jsonObj = body?.string()
-                        val gson = Gson()
-                        gson.fromJson(jsonObj, LoginResponse::class.java)
-                    }
-                }
-        }.onSuccess {
-            if (it.result.status == "error") {
-                throw RuntimeException("${it.result.message}")
-            } else {
-                val gson = Gson()
-                val request = ProfileRequest(it.result.token)
-                val requestBody = gson.toJson(request).toRequestBody()
-                val requestT = Request.Builder()
-                    //.url(ProfileActivity.URI + LOGIN)
-                    .post(requestBody)
-                    .build()
-                okHttpClient.newCall(requestT).execute().use {
-                    it.body.let { body ->
-                        val jsonObj = body?.string()
-                        val gson = Gson()
-                        gson.fromJson(jsonObj, ProfileResponse::class.java)
-                    }
-                }
-            }
+            val execute = executeRequest(SenlaService::class.java)
+            execute.getToken(loginRequest).execute().body()
         }
+    }
 
+    fun getUserData(profileRequest: ProfileRequest): Task<ProfileResponse> {
+        return Task.callInBackground {
+            executeRequest(SenlaService::class.java).getUserData(profileRequest).execute().body()
+        }
+    }
 
+    private fun <T> executeRequest(clazz: Class<T>): T {
+        val retrofit = Retrofit.Builder()
+            .baseUrl(URL)
+            .addConverterFactory(GsonConverterFactory.create())
+            .build()
+        return retrofit.create(clazz)
     }
 }

@@ -3,4 +3,10 @@
     <string name="login_btn_text">Login</string>
     <string name="login_text">Enter yor login</string>
     <string name="password_text">Enter your password</string>
+    <string name="email">Email</string>
+    <string name="first_name">First Name</string>
+    <string name="last_name">Last name</string>
+    <string name="birthday">Birth Data</string>
+    <string name="logout">Logout</string>
+    <string name="note">Note</string>
 </resources>
