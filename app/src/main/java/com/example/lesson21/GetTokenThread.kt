@@ -33,7 +33,7 @@ class GetTokenThread(
         }
     }
 
-    private fun <T> executeRequest(request: Any, method: String, clazz: Class<T>): T {
+    private fun <T,B> executeRequest(request: B, method: String, clazz: Class<T>): T {
         val requestBody = gson.toJson(request).toRequestBody()
         val requestProfile = Request.Builder()
             .url(URL + method)
